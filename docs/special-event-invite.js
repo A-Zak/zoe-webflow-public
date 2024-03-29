@@ -72,14 +72,13 @@ const updateCompletedRegistrationForm = (db, inviteId, onSuccess) => {
 }
 
 
-const hookupRsvpButtons = (elementsRef, eventDetails, profile, eventId)=> {
-// const hookupRsvpButtons = (elementsRef, inviteData, db, inviteId)=> {
+const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
 
     const regForm = createRegistrationform({
         token: "O880cuug", // experience registration
         hidden: { 
-            name: inviteData.firstName,
-            responder_full_name: inviteData.fullName,
+            firstName: profile.public.firstName,
+            lastName: profile.public.lastName,
         }, 
         onDoneCallback: async () => {
             await zoe.api.setRsvp({
@@ -128,13 +127,12 @@ const hookupRsvpButtons = (elementsRef, eventDetails, profile, eventId)=> {
 
 
 const hookupElements = (elementsRef, eventDetails, profile, eventId) => {
-// const hookupElements = (elementsRef, inviteData, db, inviteId) => {
     
     // update invitee name(s)
     elementsRef.inviteFirstName1.text(profile.public.firstName)
     elementsRef.inviteFirstName2.text(profile.public.firstName)
 
-    hookupRsvpButtons(elementsRef, inviteData, db, inviteId)
+    hookupRsvpButtons(elementsRef, profile, eventId)
 }
 
 
