@@ -1,0 +1,23 @@
+<script type="module">
+  // Add Firebase products that you want to use
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKvPDbY5a2poNMuod5LHC1lKhq-4dHIKo",
+    authDomain: "zoe-garden-app.firebaseapp.com",
+    projectId: "zoe-garden-app",
+    storageBucket: "zoe-garden-app.appspot.com",
+    messagingSenderId: "1086683960656",
+    appId: "1:1086683960656:web:b2b48ba55019fd5f268855",
+    measurementId: "G-ZQXCW40B65",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  auth.signOut()
+    .then (() => {
+      location.href = "/partners/login";
+    })
+</script>

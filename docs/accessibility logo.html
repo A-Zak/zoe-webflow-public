@@ -1,0 +1,30 @@
+
+<script>
+    // ================================================
+    // wait for nagish li to load, and update the logo
+    // ================================================
+    function waitForElm(selector) {
+        return new Promise(resolve => {
+            if (document.querySelector(selector)) {
+                return resolve(document.querySelector(selector));
+            }
+
+            const observer = new MutationObserver(mutations => {
+                if (document.querySelector(selector)) {
+                    resolve(document.querySelector(selector));
+                    observer.disconnect();
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    }
+
+    waitForElm('#NagishLiLogo').then((elm) => {
+        $('#NagishLiLogo').css("background-image", "url(https://uploads-ssl.webflow.com/6405f2e46eec1ba34c00d5a4/6464b23614e273fa1532f69e_accessibility-icon%201.png)");
+        $('#NagishLiTitle').css("margin-right", "6px");
+    });
+</script>

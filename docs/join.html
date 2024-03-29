@@ -1,0 +1,125 @@
+<!-- Scripts for Tooltips--> 
+<script src="https://unpkg.com/popper.js@1"></script>
+<script src="https://unpkg.com/tippy.js@4"></script>
+
+<!--Tippy JS Settings--> 
+<script>
+    tippy('.tippy', {             // Use class or id
+      animation: 'scale',         // See docs for more options (there are a few nice ones 😉)
+      duration: 200,              // Duration for ToolTip Animation
+      arrow: true,                // Add ToolTip Arrow
+      delay: [0, 50],             // First # = delay in, second # = delay out
+      arrowType: 'sharp',         // Sharp or 'round' or remove for none
+      theme: 'light',             // Dark is the default
+      maxWidth: 220,              // Max width in pixels for the tooltip
+    })
+    </script>
+
+<script type="module">
+
+    // import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js'
+
+    const getElementRefs = () => {
+        return {
+            hideLoaderButton: $('#hide-loader-button').get(0), // get 0 is for jqurey
+
+            memberFirstName: $('#member-first-name'),
+
+            subscriptionButtons:  {
+                fellowMonthly:  $("[subsctiptionType='fellow'][interval='monthly']"),
+                fellowYearly:   $("[subsctiptionType='fellow'][interval='yearly']"),
+                partnerMonthly: $("[subsctiptionType='partner'][interval='monthly']"),
+                partnerYearly:  $("[subsctiptionType='partner'][interval='yearly']"),
+            },
+        }
+    }
+
+
+    // const hookupPeronalizedCheckoutSubscriptionButton = (button, subscriptionType, interval, profile) => {
+
+    //     const redirSuccess = new URL(location.href)
+    //     redirSuccess.pathname = '/app/dashboard'
+    //     redirSuccess.search = '' // Remove any existing query parameters from the URL
+    //     redirSuccess.hash = '' // Remove any existing hash from the URL
+
+
+    //     const redirCancel = new URL(location.href)
+    //     redirCancel.search = '' // Remove any existing query parameters from the URL
+    //     redirCancel.hash = 'pricing' // make suer we go bakc to the pricing section 🙏
+
+
+    //     button.on("click", async () => { 
+    //         let checkoutSession = await zoe.api.stripe.subscriptionCheckout({
+    //             subscriptionType,
+    //             interval,
+    //             redirSuccess: redirSuccess.toString(), 
+    //             redirCancel: redirCancel.toString(),
+    //             firstName: profile.public.firstName,
+    //             lastName: profile.public.lastName,
+    //         })
+
+    //         if (checkoutSession.data)
+    //             location.href = checkoutSession.data.checkoutUrl
+    //     })
+    // }
+
+    const hookupPaymentLinkSubscriptionButton = (button, subscriptionType, interval) => {
+        const paymentLinks = {
+            fellow: {
+                monthly: "https://buy.stripe.com/3cs4gH3mU7d75pueV2", // 180 per month
+                yearly: "https://buy.stripe.com/dR66oP3mU6935pu4gp", // 1800 per year
+            },
+            partner: {
+                monthly: "https://buy.stripe.com/7sIaF57Da0OJ5pu7sG", // 890 per month
+                yearly: "https://buy.stripe.com/cN2eVlcXudBv4lqbIV", // 8900 per year
+            },
+        }
+
+        button.attr("href", paymentLinks[subscriptionType][interval])
+    }
+
+    const hookupElements = (elementsRef, profile) => {
+
+        // elementsRef.memberFirstName.text(profile.public.firstName)
+        //
+        // hookupPeronalizedCheckoutSubscriptionButton(elementsRef.subscriptionButtons.fellowMonthly, "fellow", "monthly", profile)
+        // hookupPeronalizedCheckoutSubscriptionButton(elementsRef.subscriptionButtons.fellowYearly, "fellow", "yearly", profile)
+        // hookupPeronalizedCheckoutSubscriptionButton(elementsRef.subscriptionButtons.partnerMonthly, "partner", "monthly", profile)
+        // hookupPeronalizedCheckoutSubscriptionButton(elementsRef.subscriptionButtons.partnerYearly, "partner", "yearly", profile)
+
+
+        elementsRef.memberFirstName.text("")
+
+        hookupPaymentLinkSubscriptionButton(elementsRef.subscriptionButtons.fellowMonthly, "fellow", "monthly")
+        hookupPaymentLinkSubscriptionButton(elementsRef.subscriptionButtons.fellowYearly, "fellow", "yearly")
+        hookupPaymentLinkSubscriptionButton(elementsRef.subscriptionButtons.partnerMonthly, "partner", "monthly")
+        hookupPaymentLinkSubscriptionButton(elementsRef.subscriptionButtons.partnerYearly, "partner", "yearly")
+    }
+
+
+    // ============================
+    //       flow starts here
+    // ============================
+
+
+
+    var Webflow = window.Webflow || [];
+    Webflow.push(async function () {
+        
+        const elementsRef = getElementRefs()
+        // window.elementsRef = elementsRef // good for debug
+
+        // let {profile} = await zoe.initFbApp()
+        //
+        // if (profile == null || profile.membership == "none") {
+        //     zoe.redirToZoeHall()
+        //     return
+        // }
+
+        hookupElements(elementsRef) // TODO: add profile if exists
+
+        elementsRef.hideLoaderButton.click()
+    })
+
+
+</script>

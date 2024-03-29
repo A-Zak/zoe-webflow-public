@@ -1,0 +1,194 @@
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-query-string@1.3.2/src/simplequerystring.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script type="module">
+
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js'
+    
+
+
+
+    const getElementRefs = () => {
+        return {
+            hideLoaderButton: $('#hide-loader-button').get(0), // get 0 is for jqurey
+
+            // //  Reference to Webflow UI ements
+            dashboardTitle: $('#dashboard-title'),
+            recommendLink: $('#recommend-link'),
+            eventsSlider: $('.swiper-wrapper'),
+            eventCard: $('.swiper-slide'),
+            becomeAFellowCard: $('#become-a-fellow-card'),
+
+            // eventName: $('#event-name'),
+            // eventDescription: $('#event-description'),
+            // dateTitle: $('#date-title'),
+            // dateSubtitle: $('#date-subtitle'),
+
+            // venueName: $('#venue-name'),
+            // venueAddress: $('#venue-address'),
+
+            // ctaButton: $('#cta-button'),
+            // zoeExperienceTemplate: $('#zoe-experience-template'),
+
+            tabs: {
+                inviteFlow: {
+                    invite: $('#invite-tab-invite'),
+                    noInvitations: $('#invite-tab-no-invitations'),
+                },
+                rsvp: {
+                    toAnswer: $('#tab-rsvp-to-answer'),
+                    yes: $('#tab-rsvp-yes'),
+                    no: $('#tab-rsvp-no'),
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+    const hookupEventInfo = (eData, cElements, profile) => {
+
+        if (zoe.hasPermission(eData, profile)) {
+            cElements
+                .find('.event-details-container')
+                .removeClass("blurred")
+        }
+
+
+
+        cElements
+                .find('.app-card')
+                .attr("href", `/app/experience?event=${eData._id}`)
+
+
+        cElements
+            .find('.app-time')
+            .text(eData.dateTitle)
+        cElements
+            .find('.app-card-event-name')
+            .text(eData.name)
+        cElements
+            .find('.app-card-event-type')
+            .text(eData.type)
+        cElements
+            .find('.app-small-text')
+            .text(eData.venue.address)
+        cElements
+            .find('.app-big-event-image')
+            .css('background-image', `url(${eData.coverPhotoUrl})`)
+    }
+
+
+    const hookupElements = (elementsRef, events, profile) => {
+
+        elementsRef.dashboardTitle.html(`Hi ${profile.public.firstName},<br/>You have ${events.length} available event${events.length > 1 ? "s" : ""}`)
+        elementsRef.recommendLink.attr("href", `https://tansvgw8ia8.typeform.com/to/udNUfeEF#recommender_name=${profile.public.firstName} ${profile.public.lastName}&recommender_phone=${profile.auth.phoneNumber}`)
+
+
+        if (profile.membership == "fellow") {
+            elementsRef.becomeAFellowCard.hide()
+        }
+
+
+        let originalCard = elementsRef.eventCard.clone()
+        let anEvent = events.shift()
+        hookupEventInfo(anEvent, elementsRef.eventCard, profile)
+
+        while (events.length) {
+            anEvent = events.shift()
+
+            let currEventCard = originalCard.clone()
+            hookupEventInfo(anEvent, currEventCard, profile)
+            elementsRef.eventsSlider.append(currEventCard)
+        }
+    }
+
+
+
+
+
+
+
+
+
+    // ============================
+    //       flow starts here
+    // ============================
+
+
+    var Webflow = window.Webflow || [];
+    Webflow.push(async function () {
+
+        let {profile} = await zoe.initFbApp()
+        const elementsRef = getElementRefs()
+        // window.elementsRef = elementsRef // good for debug
+        
+
+        if (profile == null || profile.membership == "none") {
+            zoe.redirToZoeHall()
+            return
+        }
+
+
+
+
+        let futureEvents = (await zoe.api.getFutureEvents()).data
+        let events = futureEvents.events
+
+        
+
+        let sortByRestriction = (event) => {
+            return zoe.hasPermission(event, profile) ? 0 : 100
+            
+            // if (event.rsvpPermission == "fellows") {
+            //     return profile.membership != "fellow" ? 100 : 0; // if not fellow, "fellow-events" have higher sort value
+            // } else {
+            //     return 0; // "open" events have lower sort value
+            // }
+        }
+
+        events = _.orderBy(events, [sortByRestriction, 'tStart._seconds'], ['asc', 'asc'])
+        
+
+
+        console.log("show events", events)
+
+
+        hookupElements(elementsRef, events, profile)
+
+        elementsRef.hideLoaderButton.click()
+    })
+</script>
+
+
+
+
+<script>
+    $(".swiper").append(`<div class="swiper-pagination"></div>`)
+
+    const swiper1 = new Swiper(".swiper", {
+        // Optional parameters
+        autoplay: false,
+        direction: "horizontal",
+        slidesPerView: 1,
+        slidesPerGroup: 1,
+        observer: true,
+        spaceBetween: 0,
+        loop: false,
+        centeredSlides: false,
+        centerInsufficientSlides: true,
+        mousewheel: {
+            forceToAxis: true
+        },
+
+        // If we need pagination
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true
+        },
+    })
+
+</script>

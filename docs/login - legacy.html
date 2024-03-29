@@ -1,0 +1,215 @@
+<script src="https://cdn.jsdelivr.net/npm/libphonenumber-js@1/bundle/libphonenumber-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-query-string@1.3.2/src/simplequerystring.min.js"></script>
+<script type="module">
+  // Add Firebase products that you want to use
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+  import {
+    getAuth,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+  } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+  //   import googleLibphonenumber from "https://cdn.jsdelivr.net/npm/google-libphonenumber@3.2.32/+esm";
+
+  // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+  // import { getAnalytics } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-analytics.js'
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKvPDbY5a2poNMuod5LHC1lKhq-4dHIKo",
+    authDomain: "zoe-garden-app.firebaseapp.com",
+    projectId: "zoe-garden-app",
+    storageBucket: "zoe-garden-app.appspot.com",
+    messagingSenderId: "1086683960656",
+    appId: "1:1086683960656:web:b2b48ba55019fd5f268855",
+    measurementId: "G-ZQXCW40B65",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  auth.useDeviceLanguage();
+
+
+  // // This is for invisible captcha
+  // window.recaptchaVerifier = new RecaptchaVerifier(
+  //   "send-verification-code-button",
+  //   {
+  //     size: "invisible",
+  //     callback: (response) => {
+  //       console.log("captch response", response);
+  //       // reCAPTCHA solved, allow signInWithPhoneNumber.
+  //       // maybe there should be a loader until this returns 🤔
+  //       // onSignInSubmit(); // ??
+  //     },
+  //   },
+  //   auth
+  // );
+
+  // this is for regular captcha
+  window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+
+
+
+
+
+  const getElementRefs = () => {
+    return {
+      phonenumberText: $("#phonenumber-text"),
+      phoneValidationLabel: $("#phone-validation-label"),
+      verificationCodeText: $("#verification-code-text"),
+      codeValidationText: $("#code-validation-label"),
+      askVerificationCodeButton: $("#send-verification-code-button"),
+      verifyButton: $("#verify-button"),
+      tabs: {
+        phonenumberTab: $("#phonenumber-tab"),
+        codeVerificationTab: $("#code-verification-tab"),
+      },
+    };
+  };
+
+
+
+  const setupPhoneValidation = (elementRefs) => {
+    let isValidPhonenumber = true;
+    const DEFAULT_COUNTRY = "IL";
+    const formatter = new libphonenumber.AsYouType(DEFAULT_COUNTRY);
+
+    elementRefs.phonenumberText.on("input", function () {
+      formatter.reset();
+      elementRefs.phoneValidationLabel.hide();
+      isValidPhonenumber = true;
+
+      const newValue = formatter.input(elementRefs.phonenumberText.val());
+      elementRefs.phonenumberText.val(newValue);
+    });
+
+    // TODO:
+    // validate only mobile phone numbers 💪
+    // if (phoneUtil.GetNumberType(mobile) == PhoneNumberType.MOBILE) return true
+
+    const askVerificationCode = (e) => {
+      e.preventDefault();
+
+      let phonenumber = elementRefs.phonenumberText.val();
+
+      Sentry.addBreadcrumb({
+        category: "auth",
+        level: "info",
+        message: `login attempt with phone number: ${phonenumber}`
+      })
+
+
+      if (!libphonenumber.isValidPhoneNumber(phonenumber, DEFAULT_COUNTRY)) {
+        isValidPhonenumber = false;
+        elementRefs.phoneValidationLabel.show();
+      }
+
+      // This can happen if the client side validation passes, but google doens't like the phone number (e.g. a landline like 03-5-123-123)
+      if (!isValidPhonenumber) {
+        return;
+      }
+
+      const appVerifier = window.recaptchaVerifier;
+      let formatedPhoneNumber = libphonenumber.parsePhoneNumber(phonenumber, "IL").number;
+
+      signInWithPhoneNumber(auth, formatedPhoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          console.log("SMS sent.");
+          window.confirmationResult = confirmationResult;
+
+          // switch to the verification tab
+          elementRefs.tabs.codeVerificationTab.click();
+        })
+        .catch((error) => {
+          Sentry.captureException(error)
+          console.log("error requesting verification code", error.code);
+          isValidPhonenumber = false;
+          elementRefs.phoneValidationLabel.show();
+
+          window.recaptchaVerifier.render().then(function (widgetId) {
+            grecaptcha.reset(widgetId);
+          });
+        });
+    };
+
+    elementRefs.askVerificationCodeButton.on("click", askVerificationCode);
+  };
+
+
+
+  const setupCodeValidation = (elementRefs) => {
+    let isValidCode = true;
+
+    elementRefs.verificationCodeText.on("input", function () {
+      elementRefs.codeValidationText.hide();
+      isValidCode = true;
+    });
+
+    const verifyCode = (e) => {
+      e.preventDefault();
+
+      var verificationCode = elementRefs.verificationCodeText.val();
+      if (verificationCode.length != 6) {
+        isValidCode = false;
+        elementRefs.codeValidationText.show();
+      }
+
+      if (!isValidCode) return;
+
+      confirmationResult
+        .confirm(verificationCode)
+        .then((result) => {
+          // User signed in successfully.
+          console.log("user logged in successfully", result.user);
+        })
+        .catch((error) => {
+          Sentry.captureException(error)
+          // User couldn't sign in (bad verification code?)
+          console.log("error logging in user", error)
+          elementRefs.codeValidationText.show()
+          isValidCode = false
+        });
+    };
+
+    
+    elementRefs.verifyButton.on("click", verifyCode);
+  };
+
+
+    // ============================
+    //       flow starts here
+    // ============================
+
+
+
+
+  var Webflow = window.Webflow || [];
+  Webflow.push(function () {
+    //  Reference to Webflow UI ements
+
+    const elementRefs = getElementRefs();
+    setupPhoneValidation(elementRefs);
+    setupCodeValidation(elementRefs);
+
+
+    //  Track user login status , Update UI element upon changes on login state
+    auth.onAuthStateChanged((user) => {
+
+      if (user) {
+        let isNewUser = (user.metadata.lastLoginAt - user.metadata.createdAt) < 1000
+        let redirTimeout = isNewUser ? 1000 : 0
+
+        // temporary fix for profile on create race condition 😬
+        setTimeout(() => {
+          let urlParams = simpleQueryString.parse(location.href);
+          let redirTo = urlParams.redir || "/";
+          console.log("user logged in, redir to", redirTo);
+
+          location.href = redirTo;
+        }, redirTimeout)
+
+      } else {
+        console.log("no logged in user, stay to allow them to login");
+      }
+    });
+  });
+</script>

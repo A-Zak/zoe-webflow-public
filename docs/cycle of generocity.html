@@ -1,0 +1,55 @@
+
+<script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+<script type="module">
+
+    import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js'
+    
+
+
+
+    const getElementRefs = () => {
+        return {
+            hideLoaderButton: $('#hide-loader-button').get(0), // get 0 is for jqurey
+
+            fellowName: $('#fellow-name'),
+
+            tabs: {
+                inviteFlow: {
+                    invite: $('#invite-tab-invite'),
+                    noInvitations: $('#invite-tab-no-invitations'),
+                }
+            }
+        }
+    }
+
+
+
+
+
+    // ============================
+    //       flow starts here
+    // ============================
+
+
+    var Webflow = window.Webflow || [];
+    Webflow.push(async function () {
+        
+        const elementsRef = getElementRefs()
+        // window.elementsRef = elementsRef // good for debug
+
+        let {profile} = await zoe.initFbApp()
+
+        if (profile == null || profile.membership == "none") {
+            zoe.redirToZoeHall()
+            return
+        }
+
+
+        elementsRef.fellowName.text(profile.public.firstName)
+
+        elementsRef.hideLoaderButton.click()
+    })
+</script>
+
+

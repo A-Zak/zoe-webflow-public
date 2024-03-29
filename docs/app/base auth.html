@@ -1,0 +1,28 @@
+<!-- <script src="https://cdn.jsdelivr.net/npm/simple-query-string@1.3.2/src/simplequerystring.min.js"></script> -->
+<script type="module">
+
+    const getElementRefs = () => {
+        return {
+            hideLoaderButton: $('#hide-loader-button').get(0), // get 0 is for jqurey 🤷‍♂️
+
+        }
+    }
+
+
+    // ============================
+    //       flow starts here
+    // ============================
+
+
+    var Webflow = window.Webflow || [];
+    Webflow.push(async function () {
+
+        let {profile} = await zoe.initFbApp()
+        const elementsRef = getElementRefs()
+
+        elementsRef.hideLoaderButton.click()
+    })
+</script>
+
+
+
