@@ -1,16 +1,5 @@
 
-// helper to parse recommendators to a nice usable string
-const parseRecommenders = (recommendations) => {
 
-    var onlyRecommenderNames = _.map(recommendations, (r) => r.recommenderFullName)
-        
-    return _.reduce(onlyRecommenderNames, (allRecommenders, aRecommender, key) => {
-        if (key < onlyRecommenderNames.length - 1)
-            return `${allRecommenders}, ${aRecommender}`
-        else
-            return `${allRecommenders} and ${aRecommender}`
-    })
-}
 
 const getElementRefs = () => {
     return {
@@ -25,18 +14,6 @@ const getElementRefs = () => {
         inviteRsvpNoButton: $('#invite-rsvp-no-button'),
         inviteRsvpChangeButton1: $('#invite-rsvp-change-button-1'),
         inviteRsvpChangeButton2: $('#invite-rsvp-change-button-2'),
-
-        // recommendations elements
-        recommendationsBlock: $('#invite-recommendations-block'),
-
-        expandedRecommendationContainer: $('#expanded-recommendation-container'),
-
-        recommendationsText: $('#invite-recommendations-text'),
-        recommendationsName1: $('#invite-recommendations-name'),
-        recommendationsName2: $('#invite-recommendations-name2'),
-        recommendationsImage1: $('#invite-recommendations-image'),
-        recommendationsImage2: $('#invite-recommendations-image2'),
-        recommendationsIntro: $('#recommendations-intro'),
 
         tabs: {
             inviteFlow: {
@@ -95,7 +72,8 @@ const updateCompletedRegistrationForm = (db, inviteId, onSuccess) => {
 }
 
 
-const hookupRsvpButtons = (eRef, inviteData, db, inviteId)=> {
+const hookupRsvpButtons = (elementsRef, eventDetails, profile, eventId)=> {
+// const hookupRsvpButtons = (elementsRef, inviteData, db, inviteId)=> {
 
     const regForm = createRegistrationform({
         token: "O880cuug", // experience registration
@@ -103,108 +81,60 @@ const hookupRsvpButtons = (eRef, inviteData, db, inviteId)=> {
             name: inviteData.firstName,
             responder_full_name: inviteData.fullName,
         }, 
-        onDoneCallback: () => {
-            updateCompletedRegistrationForm(db, inviteId, () => {
-                // todo: close form?
+        onDoneCallback: async () => {
+            await zoe.api.setRsvp({
+                eventId: eventId, 
+                rsvp: "interested"
             })
+            elementsRef.tabs.rsvp.yes.click()
+            // TODO: close form (?).
+
+            // updateCompletedRegistrationForm(db, inviteId, () => {
+            //     // todo: close form?
+            // })
         }
     })
 
 
-    eRef.inviteRsvpYesButton.on("click", () => { 
-        updateRSVP(db, inviteId, "YES", () => {
-            eRef.tabs.rsvp.yes.click()
-            regForm.toggle()
-        }) 
-    })
-
-    eRef.inviteRsvpNoButton.on("click", () => { 
-        updateRSVP(db, inviteId, "NO", () => {
-            eRef.tabs.rsvp.no.click()
-        }) 
-    })
-
-    eRef.inviteRsvpChangeButton1.on("click", () => eRef.tabs.rsvp.toAnswer.click())
-    eRef.inviteRsvpChangeButton2.on("click", () => eRef.tabs.rsvp.toAnswer.click())
-}
-
-
-const containsHeb = (str) => {
-    return (/[\u0590-\u05FF]/).test(str);
-}
-
-
-const hookupRecommendationInfo = (rData, rElements) => {
-    rElements.expandedContainer
-            .find('.recommender-name')
-            .text(rData.recommenderFullName)
-    rElements.expandedContainer
-            .find('.recommender-pic')
-            .attr("src", rData.recommenderProfilePic)
-    rElements.expandedContainer
-            .find('.recommendation-text')
-            .text(rData.recommendationText)
-
-    if (containsHeb(rData.recommendationText))
-        rElements.expandedContainer
-            .find('.recommendation-text')
-            .css('text-align', 'right')
-
-
-    rElements.buttonPic
-        .attr("src", rData.recommenderProfilePic)
-}
-
-const hookupRecommendationElements = (eRef, inviteData) => {
-    if (inviteData.recommendations && inviteData.recommendations.length > 0) {
-
-        console.log("recommendations in invite: ", inviteData.recommendations.length)
-
-
-        if (inviteData.recommendations.length == 1)
-            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${inviteData.recommendations[0].recommenderFullName}, who believes you would be a great fit for our upcoming event.`)
-        else {
-            let wordNumbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[inviteData.recommendations.length]} of our valued members, ${parseRecommenders(inviteData.recommendations)}, who believe you would be a great fit for our upcoming event.`)
-        }
-
-        let aRecommendation = inviteData.recommendations.pop()
-
-        hookupRecommendationInfo(aRecommendation, {
-            expandedContainer: eRef.expandedRecommendationContainer,
-            buttonPic: eRef.recommendationsImage1
+    elementsRef.inviteRsvpYesButton.on("click", async () => { 
+        await zoe.api.setRsvp({
+            eventId: eventId, 
+            rsvp: "interested"
         })
+        // elementsRef.tabs.rsvp.yes.click()
+        regForm.toggle()
+        // updateRSVP(db, inviteId, "YES", () => {
+        //     elementsRef.tabs.rsvp.yes.click()
+        //     regForm.toggle()
+        // }) 
+    })
 
-        while (inviteData.recommendations.length) {
-            aRecommendation = inviteData.recommendations.pop()
+    elementsRef.inviteRsvpNoButton.on("click", async () => { 
+        await zoe.api.setRsvp({
+            eventId: eventId, 
+            rsvp: "no"
+        })
+        elementsRef.tabs.rsvp.no.click()
+        // updateRSVP(db, inviteId, "NO", () => {
+        //     elementsRef.tabs.rsvp.no.click()
+        // }) 
+    })
 
-            let currExpandedRecommendation = eRef.expandedRecommendationContainer.clone()
-            let currSmallImage = eRef.recommendationsImage1.clone()
-
-            hookupRecommendationInfo(aRecommendation, {
-                expandedContainer: currExpandedRecommendation,
-                buttonPic: currSmallImage
-            })
-
-            eRef.expandedRecommendationContainer.after(currExpandedRecommendation)
-            eRef.recommendationsImage1.parent().append(currSmallImage)
-        }
-
-    }
-    else {
-        eRef.recommendationsBlock.hide()
-    }
+    elementsRef.inviteRsvpChangeButton1.on("click", () => elementsRef.tabs.rsvp.toAnswer.click())
+    elementsRef.inviteRsvpChangeButton2.on("click", () => elementsRef.tabs.rsvp.toAnswer.click())
 }
 
 
-const hookupElements = (eRef, inviteData, db, inviteId) => {
+
+
+const hookupElements = (elementsRef, eventDetails, profile, eventId) => {
+// const hookupElements = (elementsRef, inviteData, db, inviteId) => {
     
     // update invitee name(s)
-    eRef.inviteFirstName1.text(inviteData.firstName)
-    eRef.inviteFirstName2.text(inviteData.firstName)
+    elementsRef.inviteFirstName1.text(profile.public.firstName)
+    elementsRef.inviteFirstName2.text(profile.public.firstName)
 
-    hookupRsvpButtons(eRef, inviteData, db, inviteId)
-    hookupRecommendationElements(eRef, inviteData)
+    hookupRsvpButtons(elementsRef, inviteData, db, inviteId)
 }
 
 
@@ -260,7 +190,7 @@ Webflow.push(async function () {
 
     console.log("eventDetails", eventDetails.event)
     console.log("profile", profile)
-    // hookupElements(elementsRef, eventDetails.event, profile, eventId)
+    hookupElements(elementsRef, eventDetails.event, profile, eventId)
 
     // elementsRef.hideLoaderButton.click()
 })
@@ -272,8 +202,8 @@ Webflow.push(async function () {
 // Webflow.push(function () {
 
 //     const {app, db, auth, pGetUser} = zoe.initAppAndAuthoriseUser()
-//     const eRef = getElementRefs()
-//     window.eRef = eRef // good for debug
+//     const elementsRef = getElementRefs()
+//     window.elementsRef = elementsRef // good for debug
     
 //     pGetUser.then((user) => {
 //         if (!user) {
@@ -287,20 +217,20 @@ Webflow.push(async function () {
 //             if (!inviteDoc) {
 //                 console.log("no user invites")
 //                 // go to no-invite tab
-//                 eRef.tabs.inviteFlow.noInvitations.click()
-//                 eRef.hideLoaderButton.click()
+//                 elementsRef.tabs.inviteFlow.noInvitations.click()
+//                 elementsRef.hideLoaderButton.click()
 //             }
 //             else {
 //                 const inviteId = inviteDoc.ref.id
 //                 const inviteData = inviteDoc.data()
 //                 console.log('invitations for user', inviteData)
 
-//                 gotoCorrectRsvpTab(eRef.tabs.rsvp, inviteData)
-//                 hookupElements(eRef, inviteData, db, inviteId)
+//                 gotoCorrectRsvpTab(elementsRef.tabs.rsvp, inviteData)
+//                 hookupElements(elementsRef, inviteData, db, inviteId)
 
 //                 // show the invite 💪
-//                 eRef.tabs.inviteFlow.invite.click()
-//                 eRef.hideLoaderButton.click()
+//                 elementsRef.tabs.inviteFlow.invite.click()
+//                 elementsRef.hideLoaderButton.click()
 //             }
 //         })
 //         .catch((err) => {
