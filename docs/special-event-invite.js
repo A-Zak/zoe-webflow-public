@@ -190,7 +190,7 @@ Webflow.push(async function () {
     console.log("profile", profile)
     hookupElements(elementsRef, eventDetails.event, profile, eventId)
 
-    // elementsRef.hideLoaderButton.click()
+    elementsRef.hideLoaderButton.click()
 })
 
 
