@@ -50,6 +50,7 @@
 
         console.log("eventDetails", eventDetails.event)
         console.log("profile", profile)
+        console.log("This is amazing!!!")
 
 
         // elementsRef.hideLoaderButton.click()
