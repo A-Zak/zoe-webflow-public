@@ -37,11 +37,11 @@ const createRegistrationform = (options) => {
         hidden, // hidden variables
         size: 80, //percentage of screen (only on desktop)
         onReady: ()=> {
-            console.log("tp on ready")
+            console.log("tf on ready")
             if (onReadyCallback) onReadyCallback()
         },
         onSubmit: ()=> {
-            console.log("tp on submit")
+            console.log("tf on submit")
             if (onDoneCallback) onDoneCallback()
         }
     })
@@ -61,15 +61,6 @@ const updateRSVP = (db, inviteId, rsvpValue, onSuccess) => {
         })
 }
 
-const updateCompletedRegistrationForm = (db, inviteId, onSuccess) => {
-
-    const inviteRef = doc(db, "invitations", inviteId)
-    updateDoc(inviteRef, {completedRegForm: true})
-        .then(() => {
-            // call success method
-            if (onSuccess) onSuccess()
-        })
-}
 
 
 const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
@@ -81,16 +72,16 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
             lastName: profile.public.lastName,
         }, 
         onDoneCallback: async () => {
+            console.log("tf done callback")
             await zoe.api.setRsvp({
                 eventId: eventId, 
                 rsvp: "interested"
             })
             elementsRef.tabs.rsvp.yes.click()
-            // TODO: close form (?).
-
-            // updateCompletedRegistrationForm(db, inviteId, () => {
-            //     // todo: close form?
-            // })
+            // TODO: close form (?). don't have to, there's a finish screen.
+            //       after they close it, the screen behind it has updated 💪
+            //       downside is that they don't imediately see the add to 
+            //       calendar button... 🤷‍♂️
         }
     })
 
@@ -165,7 +156,7 @@ Webflow.push(async function () {
     let {profile} = await zoe.initFbApp()
 
     const elementsRef = getElementRefs()
-    window.elementsRef = elementsRef // good for debug
+    // window.elementsRef = elementsRef // good for debug
 
 
     let eventId = "YV9FfZBzYNULABhtQimT" // YOKO Connect event id
@@ -174,17 +165,18 @@ Webflow.push(async function () {
 
     if (!eventDetails || eventDetails.error) {
         // redir back to dashboard
-        location.href = '/app/dashboard'
+        location.href = '/'
         return
     }
+    
+    // make sure user is allowed to see the invite
+    if (zoe.hasVisibilityPermission(eventDetails, profile)) {
+        elementsRef.tabs.inviteFlow.invite.click()
+    }
+    else {
+        elementsRef.tabs.inviteFlow.noInvitations.click()
+    }
 
-    // TODO: check if user is member, if not redir / different tab.
-    // TODO: check if user invited, if not redir / different tab.
-
-
-
-    // TODO: if event is not visibility == "open", and you're not on the invite list, redir to '/app/dashbord'
-    // TODO: also if event type is Special event (which should not appear in the app). Alternativly (possibly) add filter in getEventDetails 💪
 
     console.log("eventDetails", eventDetails.event)
     console.log("profile", profile)

@@ -307,7 +307,7 @@
         const fbFunctions = getFunctions(app)
 
         return {
-            getEventDetails:    httpsCallable(fbFunctions, 'getEventDetails'),
+            getEventDetails:    httpsCallable(fbFunctions, 'getEventDetails'), // TODO: filter out events with type "Special event" (which should not appear in the app). alternatively add a propraitery filter.
             setRsvp:            httpsCallable(fbFunctions, 'setRsvp'),
             getFutureEvents:    httpsCallable(fbFunctions, 'getFutureEvents'),
             getAuth:            httpsCallable(fbFunctions, 'getAuth'),
@@ -322,13 +322,30 @@
 
     // TODO: store profile globally, and take only event as param 💪
     //       could also take out most of the login flow out to a global func 💪
+    // TODO: refactor to hasRsvpPermission
     const hasPermission = ({rsvpPermission, invited}, {membership, auth}) => {
-        if ((rsvpPermission == "fellows" && membership == "fellow")
+
+        if (   (rsvpPermission == "fellows" && membership == "fellow")
             || (rsvpPermission == "members" && (membership == "fellow" || membership == "member"))
             || (rsvpPermission == "all")
             || (_.includes(invited, auth.phoneNumber))
-            || (rsvpPermission == "inviteOnly")  // TODO: not sure if this is relevant 🙃
-            ) {
+        ) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
+
+
+    // TODO: store profile globally, and take only event as param 💪
+    //       could also take out most of the login flow out to a global func 💪
+    const hasVisibilityPermission = ({visibility, invited}, {auth}) => {
+
+        if ((visibility == "open")
+            || (_.includes(invited, auth.phoneNumber))
+        ) {
             return true
         }
         else {
@@ -346,6 +363,7 @@
         getUserProfile,
         waitForUserProfile,
         hasPermission,
+        hasVisibilityPermission,
     }
 
 
