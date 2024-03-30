@@ -170,7 +170,7 @@ Webflow.push(async function () {
     }
     
     // make sure user is allowed to see the invite
-    if (zoe.hasVisibilityPermission(eventDetails, profile)) {
+    if (zoe.hasVisibilityPermission(eventDetails.event, profile)) {
         elementsRef.tabs.inviteFlow.invite.click()
     }
     else {
