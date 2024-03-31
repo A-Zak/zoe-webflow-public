@@ -125,28 +125,41 @@ const hookupRecommendationInfo = (rData, rElements) => {
         .attr("src", rData.recommenderProfilePic)
 }
 
+// helper to parse recommendators to a nice usable string
+const parseRecommenders = (recommendations) => {
+
+    var onlyRecommenderNames = _.map(recommendations, (r) => r.recommenderFullName)
+        
+    return _.reduce(onlyRecommenderNames, (allRecommenders, aRecommender, key) => {
+        if (key < onlyRecommenderNames.length - 1)
+            return `${allRecommenders}, ${aRecommender}`
+        else
+            return `${allRecommenders} and ${aRecommender}`
+    })
+}
+
 const hookupRecommendationElements = (eRef, recommendations) => {
     if (recommendations.length > 0) {
 
-        console.log("recommendations in invite: ", inviteData.recommendations.length)
+        console.log("recommendations in invite: ", recommendations.length)
 
 
-        if (inviteData.recommendations.length == 1)
-            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${inviteData.recommendations[0].recommenderFullName}, who believes you would be a great fit for our upcoming event.`)
+        if (recommendations.length == 1)
+            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${recommendations[0].recommenderFullName}, who believes you would be a great fit for our upcoming event.`)
         else {
             let wordNumbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[inviteData.recommendations.length]} of our valued members, ${parseRecommenders(inviteData.recommendations)}, who believe you would be a great fit for our upcoming event.`)
+            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[recommendations.length]} of our valued members, ${parseRecommenders(recommendations)}, who believe you would be a great fit for our upcoming event.`)
         }
 
-        let aRecommendation = inviteData.recommendations.pop()
+        let aRecommendation = recommendations.pop()
 
         hookupRecommendationInfo(aRecommendation, {
             expandedContainer: eRef.expandedRecommendationContainer,
             buttonPic: eRef.recommendationsImage1
         })
 
-        while (inviteData.recommendations.length) {
-            aRecommendation = inviteData.recommendations.pop()
+        while (recommendations.length) {
+            aRecommendation = recommendations.pop()
 
             let currExpandedRecommendation = eRef.expandedRecommendationContainer.clone()
             let currSmallImage = eRef.recommendationsImage1.clone()
@@ -181,11 +194,11 @@ const hookupElements = (elementsRef, profile, eventId, recommendations) => {
 }
 
 
-const gotoCorrectRsvpTab = (rsvpTabs, inviteData) => {
+const gotoCorrectRsvpTab = (rsvpTabs, eventData, profile) => {
     let rsvpTab = rsvpTabs.toAnswer
-    if (inviteData.rsvp == "YES")
+    if (_.includes(eventData.rsvpYes, profile.auth.phoneNumber))
         rsvpTab = rsvpTabs.yes
-    else if (inviteData.rsvp == "NO")
+    else if (_.includes(eventData.rsvpNo, profile.auth.phoneNumber))
         rsvpTab = rsvpTabs.no
 
     rsvpTab.click()
@@ -234,8 +247,11 @@ Webflow.push(async function () {
 
     console.log("eventDetails", eventDetails.event)
     console.log("profile", profile)
-    // TODO: gotoCorrectRsvpTab...
-    hookupElements(elementsRef, profile, eventId, [])
+
+    let recommendations = []
+
+    gotoCorrectRsvpTab(elementsRef.rsvpTabs, eventDetails.event, profile)
+    hookupElements(elementsRef, profile, eventId, recommendations)
 
     elementsRef.hideLoaderButton.click()
 })
