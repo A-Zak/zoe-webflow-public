@@ -66,7 +66,7 @@ const updateRSVP = (db, inviteId, rsvpValue, onSuccess) => {
 const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
 
     const regForm = createRegistrationform({
-        token: "O880cuug", // experience registration
+        token: window.zoeTypeformToken,
         hidden: { 
             firstName: profile.public.firstName,
             lastName: profile.public.lastName,
@@ -159,7 +159,7 @@ Webflow.push(async function () {
     // window.elementsRef = elementsRef // good for debug
 
 
-    let eventId = "YV9FfZBzYNULABhtQimT" // YOKO Connect event id
+    let eventId = window.zoeEventId
     let eventDetails = (await zoe.api.getEventDetails({eventId})).data
     
 
