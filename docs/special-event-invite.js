@@ -15,6 +15,18 @@ const getElementRefs = () => {
         inviteRsvpChangeButton1: $('#invite-rsvp-change-button-1'),
         inviteRsvpChangeButton2: $('#invite-rsvp-change-button-2'),
 
+        // recommendations elements
+        recommendationsBlock: $('#invite-recommendations-block'),
+
+        expandedRecommendationContainer: $('#expanded-recommendation-container'),
+
+        recommendationsText: $('#invite-recommendations-text'),
+        recommendationsName1: $('#invite-recommendations-name'),
+        recommendationsName2: $('#invite-recommendations-name2'),
+        recommendationsImage1: $('#invite-recommendations-image'),
+        recommendationsImage2: $('#invite-recommendations-image2'),
+        recommendationsIntro: $('#recommendations-intro'),
+
         tabs: {
             inviteFlow: {
                 invite: $('#invite-tab-invite'),
@@ -92,16 +104,80 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
     elementsRef.inviteRsvpChangeButton2.on("click", () => elementsRef.tabs.rsvp.toAnswer.click())
 }
 
+const hookupRecommendationInfo = (rData, rElements) => {
+    rElements.expandedContainer
+            .find('.recommender-name')
+            .text(rData.recommenderFullName)
+    rElements.expandedContainer
+            .find('.recommender-pic')
+            .attr("src", rData.recommenderProfilePic)
+    rElements.expandedContainer
+            .find('.recommendation-text')
+            .text(rData.recommendationText)
+
+    if (containsHeb(rData.recommendationText))
+        rElements.expandedContainer
+            .find('.recommendation-text')
+            .css('text-align', 'right')
+
+
+    rElements.buttonPic
+        .attr("src", rData.recommenderProfilePic)
+}
+
+const hookupRecommendationElements = (eRef, recommendations) => {
+    if (recommendations.length > 0) {
+
+        console.log("recommendations in invite: ", inviteData.recommendations.length)
+
+
+        if (inviteData.recommendations.length == 1)
+            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${inviteData.recommendations[0].recommenderFullName}, who believes you would be a great fit for our upcoming event.`)
+        else {
+            let wordNumbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[inviteData.recommendations.length]} of our valued members, ${parseRecommenders(inviteData.recommendations)}, who believe you would be a great fit for our upcoming event.`)
+        }
+
+        let aRecommendation = inviteData.recommendations.pop()
+
+        hookupRecommendationInfo(aRecommendation, {
+            expandedContainer: eRef.expandedRecommendationContainer,
+            buttonPic: eRef.recommendationsImage1
+        })
+
+        while (inviteData.recommendations.length) {
+            aRecommendation = inviteData.recommendations.pop()
+
+            let currExpandedRecommendation = eRef.expandedRecommendationContainer.clone()
+            let currSmallImage = eRef.recommendationsImage1.clone()
+
+            hookupRecommendationInfo(aRecommendation, {
+                expandedContainer: currExpandedRecommendation,
+                buttonPic: currSmallImage
+            })
+
+            eRef.expandedRecommendationContainer.after(currExpandedRecommendation)
+            eRef.recommendationsImage1.parent().append(currSmallImage)
+        }
+
+    }
+    else {
+        eRef.recommendationsBlock.hide()
+    }
+}
 
 
 
-const hookupElements = (elementsRef, eventDetails, profile, eventId) => {
+const hookupElements = (elementsRef, profile, eventId, recommendations) => {
     
     // update invitee name(s)
     elementsRef.inviteFirstName1.text(profile.public.firstName)
     elementsRef.inviteFirstName2.text(profile.public.firstName)
 
     hookupRsvpButtons(elementsRef, profile, eventId)
+    hookupRecommendationElements(elementsRef, recommendations)
+
+    elementsRef.recommendationsBlock.hide()
 }
 
 
@@ -159,7 +235,7 @@ Webflow.push(async function () {
     console.log("eventDetails", eventDetails.event)
     console.log("profile", profile)
     // TODO: gotoCorrectRsvpTab...
-    hookupElements(elementsRef, eventDetails.event, profile, eventId)
+    hookupElements(elementsRef, profile, eventId, [])
 
     elementsRef.hideLoaderButton.click()
 })
