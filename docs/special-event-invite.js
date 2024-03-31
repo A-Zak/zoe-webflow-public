@@ -53,8 +53,9 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
     const regForm = createRegistrationform({
         token: window.zoeTypeformToken,
         hidden: { 
-            firstName: profile.public.firstName,
-            lastName: profile.public.lastName,
+            firstname: profile.public.firstName,
+            lastname: profile.public.lastName,
+            phonenumber: profile.auth.phoneNumber,
         }, 
         onDoneCallback: async () => {
             console.log("tf done callback")
@@ -157,6 +158,7 @@ Webflow.push(async function () {
 
     console.log("eventDetails", eventDetails.event)
     console.log("profile", profile)
+    // TODO: gotoCorrectRsvpTab...
     hookupElements(elementsRef, eventDetails.event, profile, eventId)
 
     elementsRef.hideLoaderButton.click()
