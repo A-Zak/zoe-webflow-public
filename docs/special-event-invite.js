@@ -250,7 +250,7 @@ Webflow.push(async function () {
 
     let recommendations = []
 
-    gotoCorrectRsvpTab(elementsRef.rsvpTabs, eventDetails.event, profile)
+    gotoCorrectRsvpTab(elementsRef.tabs.rsvp, eventDetails.event, profile)
     hookupElements(elementsRef, profile, eventId, recommendations)
 
     elementsRef.hideLoaderButton.click()
