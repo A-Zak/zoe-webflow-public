@@ -47,21 +47,6 @@ const createRegistrationform = (options) => {
     })
 }
 
-const updateRSVP = (db, inviteId, rsvpValue, onSuccess) => {
-    if (inviteId == "") 
-        return
-    if (rsvpValue != "YES" && rsvpValue != "NO" && rsvpValue != "MAYBE")
-        return
-
-    const inviteRef = doc(db, "invitations", inviteId)
-    updateDoc(inviteRef, {rsvp: rsvpValue})
-        .then(() => {
-            // call success method
-            if (onSuccess) onSuccess()
-        })
-}
-
-
 
 const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
 
@@ -75,7 +60,7 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
             console.log("tf done callback")
             await zoe.api.setRsvp({
                 eventId: eventId, 
-                rsvp: "interested"
+                rsvp: "yes"
             })
             elementsRef.tabs.rsvp.yes.click()
             // TODO: close form (?). don't have to, there's a finish screen.
@@ -87,16 +72,11 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
 
 
     elementsRef.inviteRsvpYesButton.on("click", async () => { 
-        await zoe.api.setRsvp({
-            eventId: eventId, 
-            rsvp: "interested"
-        })
-        // elementsRef.tabs.rsvp.yes.click()
+        // await zoe.api.setRsvp({
+        //     eventId: eventId, 
+        //     rsvp: "interested" // rsvp "interested" not supported // TODO: maybe add?
+        // })
         regForm.toggle()
-        // updateRSVP(db, inviteId, "YES", () => {
-        //     elementsRef.tabs.rsvp.yes.click()
-        //     regForm.toggle()
-        // }) 
     })
 
     elementsRef.inviteRsvpNoButton.on("click", async () => { 
@@ -105,9 +85,6 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
             rsvp: "no"
         })
         elementsRef.tabs.rsvp.no.click()
-        // updateRSVP(db, inviteId, "NO", () => {
-        //     elementsRef.tabs.rsvp.no.click()
-        // }) 
     })
 
     elementsRef.inviteRsvpChangeButton1.on("click", () => elementsRef.tabs.rsvp.toAnswer.click())
