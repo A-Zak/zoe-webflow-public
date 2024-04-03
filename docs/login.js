@@ -24,7 +24,7 @@ var uiConfig = {
       },
     },
     provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
-    defaultCountry: 'NL',
+    defaultCountry: window.zoeDefaultCountry,
     // Invisible reCAPTCHA with image challenge and bottom left badge.
     recaptchaParameters: {
       type: 'image',
