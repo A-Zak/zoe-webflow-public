@@ -1,3 +1,5 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js'
+import { getAuth } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js'
 
   // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -12,7 +14,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// firebase.initializeApp(firebaseConfig);
+let auth = getAuth(initializeApp(firebaseConfig))
 
 // FirebaseUI config.
 var uiConfig = {
@@ -38,7 +41,7 @@ var uiConfig = {
 };
 
 // Initialize the FirebaseUI Widget using Firebase.
-var ui = new firebaseui.auth.AuthUI(firebase.auth());
+var ui = new firebaseui.auth.AuthUI(auth);
 
 
 
