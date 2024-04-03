@@ -155,7 +155,7 @@
     }
 
 
-    const initFbApp = async () => {
+    const initFbApp = async (options) => {
         const app = initializeApp(firebaseConfig)
         const db = getFirestore(app)
         const api = setupApi(app)
@@ -168,7 +168,7 @@
         
         let user = await getUser(auth, urlParams)
         if (!user)
-            return redirBackToLogin() // TODO: support fb app without authentication (e.g. list events without RSVP 🤷‍♂️)
+            return redirBackToLogin(options.baseLoginUrl) // TODO: support fb app without authentication (e.g. list events without RSVP 🤷‍♂️)
 
         let profile = await getUserProfile(db, user, urlParams)
 
@@ -216,11 +216,13 @@
         return {app, db, auth, pGetUser}
     }
 
-    const redirBackToLogin = () => {
+    const redirBackToLogin = (baseLoginUrl) => {
         console.log('no logged in user, redir to login')
         console.log('after login come back here:', location.href)
 
-        location.href = '/login?redir=' + location.href
+        baseLoginUrl = baseLoginUrl ? baseLoginUrl : "/login"
+
+        location.href = `${baseLoginUrl}?redir=${location.href}`
     }
 
     // const redirToDashboard = () => {

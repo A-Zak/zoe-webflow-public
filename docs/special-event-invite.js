@@ -220,7 +220,7 @@ const gotoCorrectRsvpTab = (rsvpTabs, eventData, profile) => {
 var Webflow = window.Webflow || [];
 Webflow.push(async function () {
 
-    let {profile} = await zoe.initFbApp()
+    let {profile} = await zoe.initFbApp({baseLoginUrl:"/login-yoko"})
 
     const elementsRef = getElementRefs()
     // window.elementsRef = elementsRef // good for debug
