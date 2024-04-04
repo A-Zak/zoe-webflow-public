@@ -155,7 +155,7 @@
     }
 
 
-    const initFbApp = async (options) => {
+    const initFbApp = async (options = {}) => {
         const app = initializeApp(firebaseConfig)
         const db = getFirestore(app)
         const api = setupApi(app)
@@ -309,12 +309,13 @@
         const fbFunctions = getFunctions(app)
 
         return {
-            getEventDetails:    httpsCallable(fbFunctions, 'getEventDetails'), // TODO: filter out events with type "Special event" (which should not appear in the app). alternatively add a propraitery filter.
-            setRsvp:            httpsCallable(fbFunctions, 'setRsvp'),
-            getFutureEvents:    httpsCallable(fbFunctions, 'getFutureEvents'),
-            getAuth:            httpsCallable(fbFunctions, 'getAuth'),
-            getLoginToken:      httpsCallable(fbFunctions, 'getLoginToken'),
-            devTest:            httpsCallable(fbFunctions, 'devTest-devTest'),
+            getEventDetails:            httpsCallable(fbFunctions, 'getEventDetails'), // TODO: filter out events with type "Special event" (which should not appear in the app). alternatively add a propraitery filter.
+            getRecommendationsForEvent: httpsCallable(fbFunctions, 'getRecommendationsForEvent'),
+            setRsvp:                    httpsCallable(fbFunctions, 'setRsvp'),
+            getFutureEvents:            httpsCallable(fbFunctions, 'getFutureEvents'),
+            getAuth:                    httpsCallable(fbFunctions, 'getAuth'),
+            getLoginToken:              httpsCallable(fbFunctions, 'getLoginToken'),
+            devTest:                    httpsCallable(fbFunctions, 'devTest-devTest'),
             stripe: {
                 subscriptionCheckout:       httpsCallable(fbFunctions, 'stripe-subscription-subscriptionCheckout'),
                 subscriptionCheckoutTest:   httpsCallable(fbFunctions, 'stripe-subscription-subscriptionCheckoutTest'),
