@@ -200,8 +200,6 @@ const hookupElements = (elementsRef, profile, eventId, recommendations) => {
 
     hookupRsvpButtons(elementsRef, profile, eventId)
     hookupRecommendationElements(elementsRef, recommendations)
-
-    // elementsRef.recommendationsBlock.hide()
 }
 
 
