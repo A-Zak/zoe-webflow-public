@@ -104,6 +104,11 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
     elementsRef.inviteRsvpChangeButton2.on("click", () => elementsRef.tabs.rsvp.toAnswer.click())
 }
 
+
+const containsHeb = (str) => {
+    return (/[\u0590-\u05FF]/).test(str);
+}
+
 const hookupRecommendationInfo = (rData, rElements) => {
     let rSender = rData.senderProfile
 
