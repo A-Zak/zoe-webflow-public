@@ -105,12 +105,14 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
 }
 
 const hookupRecommendationInfo = (rData, rElements) => {
+    let rSender = rData.senderProfile
+
     rElements.expandedContainer
             .find('.recommender-name')
-            .text(rData.recommenderFullName)
+            .text(`${rSender.firstName} ${rSender.lastName}`)
     rElements.expandedContainer
             .find('.recommender-pic')
-            .attr("src", rData.recommenderProfilePic)
+            .attr("src", rSender.profilePic)
     rElements.expandedContainer
             .find('.recommendation-text')
             .text(rData.recommendationText)
@@ -122,7 +124,7 @@ const hookupRecommendationInfo = (rData, rElements) => {
 
 
     rElements.buttonPic
-        .attr("src", rData.recommenderProfilePic)
+        .attr("src", rSender.profilePic)
 }
 
 // helper to parse recommendators to a nice usable string
@@ -227,17 +229,18 @@ Webflow.push(async function () {
 
 
     let eventId = window.zoeEventId
-    let eventDetails = (await zoe.api.getEventDetails({eventId})).data
-    
 
-    if (!eventDetails || eventDetails.error) {
-        // redir back to dashboard
-        location.href = '/'
-        return
-    }
+    let [eventDetailsResult, recommendationsResult] = await Promise.all([
+        zoe.api.getEventDetails({eventId}), 
+        zoe.api.getRecommendationsForEvent({eventId})
+    ])
+
+    let eventDetails = eventDetailsResult.data.event
+    let recommendations = recommendationsResult.data.recommendations
+    
     
     // make sure user is allowed to see the invite
-    if (zoe.hasVisibilityPermission(eventDetails.event, profile)) {
+    if (zoe.hasVisibilityPermission(eventDetails, profile)) {
         elementsRef.tabs.inviteFlow.invite.click()
     }
     else {
@@ -245,12 +248,11 @@ Webflow.push(async function () {
     }
 
 
-    console.log("eventDetails", eventDetails.event)
+    console.log("eventDetails", eventDetails)
+    console.log("recommendations", recommendations)
     console.log("profile", profile)
 
-    let recommendations = []
-
-    gotoCorrectRsvpTab(elementsRef.tabs.rsvp, eventDetails.event, profile)
+    gotoCorrectRsvpTab(elementsRef.tabs.rsvp, eventDetails, profile)
     hookupElements(elementsRef, profile, eventId, recommendations)
 
     elementsRef.hideLoaderButton.click()
