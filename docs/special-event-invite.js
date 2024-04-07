@@ -133,9 +133,12 @@ const hookupRecommendationInfo = (rData, rElements) => {
 }
 
 // helper to parse recommendators to a nice usable string
-const parseRecommenders = (recommendations) => {
+const parseRecommenderNames = (recommendations) => {
 
-    var onlyRecommenderNames = _.map(recommendations, (r) => r.recommenderFullName)
+    let onlyRecommenderNames = _.map(recommendations, (r) => `${r.senderProfile.firstName} ${r.senderProfile.lastName}`)
+
+    if (recommendations.length == 1)
+        return onlyRecommenderNames[0]
         
     return _.reduce(onlyRecommenderNames, (allRecommenders, aRecommender, key) => {
         if (key < onlyRecommenderNames.length - 1)
@@ -150,12 +153,13 @@ const hookupRecommendationElements = (eRef, recommendations) => {
 
         console.log("recommendations in invite: ", recommendations.length)
 
+        let recommendersNamesString = parseRecommenderNames(recommendations)
 
         if (recommendations.length == 1)
-            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${recommendations[0].recommenderFullName}, who believes you would be a great fit for our upcoming event.`)
+            eRef.recommendationsIntro.text(`We've received a recommendation from one of our valued members, ${recommendersNamesString}, who believes you would be a great fit for our upcoming event.`)
         else {
             let wordNumbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
-            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[recommendations.length]} of our valued members, ${parseRecommenders(recommendations)}, who believe you would be a great fit for our upcoming event.`)
+            eRef.recommendationsIntro.text(`We've received a recommendation from ${wordNumbers[recommendations.length]} of our valued members, ${recommendersNamesString}, who believe you would be a great fit for our upcoming event.`)
         }
 
         let aRecommendation = recommendations.pop()
@@ -197,7 +201,7 @@ const hookupElements = (elementsRef, profile, eventId, recommendations) => {
     hookupRsvpButtons(elementsRef, profile, eventId)
     hookupRecommendationElements(elementsRef, recommendations)
 
-    elementsRef.recommendationsBlock.hide()
+    // elementsRef.recommendationsBlock.hide()
 }
 
 
