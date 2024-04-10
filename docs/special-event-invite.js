@@ -262,49 +262,7 @@ Webflow.push(async function () {
     gotoCorrectRsvpTab(elementsRef.tabs.rsvp, eventDetails, profile)
     hookupElements(elementsRef, profile, eventId, recommendations)
 
+
+    elementsRef.tabs.inviteFlow.invite.click()
     elementsRef.hideLoaderButton.click()
 })
-
-
-
-
-// var Webflow = window.Webflow || [];
-// Webflow.push(function () {
-
-//     const {app, db, auth, pGetUser} = zoe.initAppAndAuthoriseUser()
-//     const elementsRef = getElementRefs()
-//     window.elementsRef = elementsRef // good for debug
-    
-//     pGetUser.then((user) => {
-//         if (!user) {
-//             zoe.redirBackToLogin()
-//             return
-//         }
-        
-//         console.log('user logged in, load the invite details', user)
-
-//         zoe.getUserInvite(db, user, "Zoé Experience July").then((inviteDoc) => {
-//             if (!inviteDoc) {
-//                 console.log("no user invites")
-//                 // go to no-invite tab
-//                 elementsRef.tabs.inviteFlow.noInvitations.click()
-//                 elementsRef.hideLoaderButton.click()
-//             }
-//             else {
-//                 const inviteId = inviteDoc.ref.id
-//                 const inviteData = inviteDoc.data()
-//                 console.log('invitations for user', inviteData)
-
-//                 gotoCorrectRsvpTab(elementsRef.tabs.rsvp, inviteData)
-//                 hookupElements(elementsRef, inviteData, db, inviteId)
-
-//                 // show the invite 💪
-//                 elementsRef.tabs.inviteFlow.invite.click()
-//                 elementsRef.hideLoaderButton.click()
-//             }
-//         })
-//         .catch((err) => {
-//             console.log('error', err)
-//         })
-//     })
-// })
