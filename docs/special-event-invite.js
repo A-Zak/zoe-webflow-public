@@ -244,7 +244,6 @@ Webflow.push(async function () {
 
     let eventDetails = eventDetailsResult.data.event
     let recommendations = recommendationsResult.data.recommendations
-    recommendations = []
     
     
     // make sure user is allowed to see the invite
