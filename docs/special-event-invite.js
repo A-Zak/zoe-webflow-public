@@ -118,9 +118,13 @@ const hookupRecommendationInfo = (rData, rElements) => {
     rElements.expandedContainer
             .find('.recommender-pic')
             .attr("src", rSender.profilePic)
-    rElements.expandedContainer
-            .find('.recommendation-text')
-            .text(rData.recommendationText)
+
+    let recommendationTextElement = rElements.expandedContainer.find('.recommendation-text')
+    if (rData.recommendationText.trim().length > 0)
+        recommendationTextElement.text(rData.recommendationText)
+    else
+        recommendationTextElement.hide()
+
 
     if (containsHeb(rData.recommendationText))
         rElements.expandedContainer
