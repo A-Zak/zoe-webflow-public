@@ -112,6 +112,9 @@ const containsHeb = (str) => {
 const hookupRecommendationInfo = (rData, rElements) => {
     let rSender = rData.senderProfile
 
+    rElements.buttonPic
+        .attr("src", rSender.profilePic)
+
     rElements.expandedContainer
             .find('.recommender-name')
             .text(`${rSender.firstName} ${rSender.lastName}`)
@@ -119,21 +122,16 @@ const hookupRecommendationInfo = (rData, rElements) => {
             .find('.recommender-pic')
             .attr("src", rSender.profilePic)
 
+
+
     let recommendationTextElement = rElements.expandedContainer.find('.recommendation-text')
     if (rData.recommendationText.trim().length > 0)
         recommendationTextElement.text(rData.recommendationText)
     else
         recommendationTextElement.hide()
 
-
     if (containsHeb(rData.recommendationText))
-        rElements.expandedContainer
-            .find('.recommendation-text')
-            .css('text-align', 'right')
-
-
-    rElements.buttonPic
-        .attr("src", rSender.profilePic)
+        recommendationTextElement.css('text-align', 'right')
 }
 
 // helper to parse recommendators to a nice usable string
