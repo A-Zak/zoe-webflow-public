@@ -68,6 +68,7 @@ const hookupRsvpButtons = (elementsRef, profile, eventId)=> {
             firstname: profile.public.firstName,
             lastname: profile.public.lastName,
             phonenumber: profile.auth.phoneNumber,
+            ...zoe.urlParams,
         }, 
         onDoneCallback: async () => {
             console.log("tf done callback")

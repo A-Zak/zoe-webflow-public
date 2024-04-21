@@ -39,7 +39,10 @@ const createRegistrationform = (options) => {
 const connectTypeformButton = (elementsRef)=> {
 
     const regForm = createRegistrationform({
-        token: window.zoeTypeformToken
+        token: window.zoeTypeformToken,
+        hidden: { 
+            ...zoe.urlParams,
+        }, 
     })
 
     elementsRef.openTypeformButton.on("click", async () => { 
