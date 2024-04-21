@@ -175,10 +175,11 @@
 
 
         let hasName = profile !== null && profile.public.firstName !== null
+        let name = hasName ? `${profile.public.firstName} ${profile.public.lastName || ''}`.trim() : ""
+
         FS.identify(user.phoneNumber, {
             phonenumber: user.phoneNumber,
-            ...(hasName && {fullName: `${profile.public.firstName} ${profile.public.lastName || ''}`}),
-            // fullName: "asd" // TODO: load user profile, and add the full name to see in fullstory
+            ...(hasName && {fullName: name, displayName: name}),
         })
 
         console.log ("Finished FB app init")
