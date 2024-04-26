@@ -61,6 +61,8 @@ const connectTypeformButton = (elementsRef)=> {
 var Webflow = window.Webflow || [];
 Webflow.push(async function () {
 
+    zoe.zoeInit()
+
     const elementsRef = getElementRefs()
 
     connectTypeformButton(elementsRef)

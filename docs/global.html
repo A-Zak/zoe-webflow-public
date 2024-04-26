@@ -156,6 +156,12 @@
     }
 
 
+    const zoeInit = () => {
+        let urlParams = simpleQueryString.parse(location.href)
+
+        window.zoe = {...window.zoe, urlParams}
+    }
+
     const initFbApp = async (options = {}) => {
         const app = initializeApp(firebaseConfig)
         const db = getFirestore(app)
@@ -361,6 +367,7 @@
 
 
     window.zoe = {
+        zoeInit,
         initFbApp,
         initAppAndAuthoriseUser,
         redirBackToLogin,
