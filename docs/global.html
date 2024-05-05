@@ -175,7 +175,7 @@
         
         let user = await getUser(auth, urlParams)
         if (!user)
-            return redirBackToLogin(options.baseLoginUrl) // TODO: support fb app without authentication (e.g. list events without RSVP 🤷‍♂️)
+            return redirBackToLogin(options) // TODO: support fb app without authentication (e.g. list events without RSVP 🤷‍♂️)
 
         let profile = await getUserProfile(db, user, urlParams)
 
@@ -224,13 +224,15 @@
         return {app, db, auth, pGetUser}
     }
 
-    const redirBackToLogin = (baseLoginUrl) => {
+    const redirBackToLogin = ({baseLoginUrl, defaultLoginCountry}) => {
         console.log('no logged in user, redir to login')
         console.log('after login come back here:', location.href)
 
         baseLoginUrl = baseLoginUrl ? baseLoginUrl : "/login"
 
-        location.href = `${baseLoginUrl}?redir=${location.href}`
+        let defaultCountryParam = defaultLoginCountry ? `defaultCountry=${defaultLoginCountry}` : ""
+
+        location.href = `${baseLoginUrl}?redir=${location.href}&${defaultCountryParam}`
     }
 
     // const redirToDashboard = () => {
